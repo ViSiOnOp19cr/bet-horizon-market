@@ -14,29 +14,23 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <TrendingUp className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            PredictionMarket
+          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+            PaisaPredict
           </h1>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
-          <Link 
-            to="/markets" 
-            className="text-foreground hover:text-primary transition-smooth"
-          >
+          <Link to="/" className="text-slate-300 hover:text-white transition-colors">
+            Home
+          </Link>
+          <Link to="/markets" className="text-slate-300 hover:text-white transition-colors">
             Markets
           </Link>
-          <Link 
-            to="/leaderboard" 
-            className="text-foreground hover:text-primary transition-smooth"
-          >
+          <Link to="/leaderboard" className="text-slate-300 hover:text-white transition-colors">
             Leaderboard
           </Link>
           {isAdmin && (
-            <Link 
-              to="/admin" 
-              className="text-warning hover:text-warning/80 transition-smooth font-medium"
-            >
+            <Link to="/admin" className="text-slate-300 hover:text-white transition-colors">
               Admin
             </Link>
           )}
@@ -44,35 +38,32 @@ export const Header: React.FC = () => {
 
         <div className="flex items-center space-x-4">
           {user && (
-            <div className="flex items-center space-x-3">
-              <div className="text-right hidden sm:block">
-                <div className="text-sm text-muted-foreground">Balance</div>
-                <div className="font-semibold text-success">
-                  {formatBalance(user.balance)}
-                </div>
+            <div className="hidden sm:flex items-center space-x-3">
+              <div className="text-right">
+                <p className="text-sm text-slate-400">Balance</p>
+                <p className="font-semibold text-emerald-400">{formatBalance(user.balance)}</p>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-slate-600"
-                asChild
-              >
-                <Link to="/profile">
-                  <User className="h-4 w-4 mr-2" />
-                  Profile
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={logout}
-                className="border-slate-600 hover:border-destructive hover:text-destructive"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
             </div>
           )}
+          
+          <div className="flex items-center space-x-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/profile" className="flex items-center space-x-1">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Profile</span>
+              </Link>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={logout}
+              className="flex items-center space-x-1"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+          </div>
         </div>
       </div>
     </header>

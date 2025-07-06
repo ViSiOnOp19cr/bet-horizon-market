@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await refreshUser();
       toast({
         title: "Login Successful",
-        description: "Welcome back to PredictionMarket!",
+        description: "Welcome back to PaisaPredict!",
       });
     } catch (error: any) {
       toast({

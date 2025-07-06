@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { Header } from "@/components/layout/Header";
-import Index from "./pages/Index";
+import LandingPage from "./pages/Index";
 import Markets from "./pages/Markets";
 import MarketDetail from "./pages/MarketDetail";
 import Profile from "./pages/Profile";
@@ -38,7 +38,7 @@ const AppContent = () => (
         <ProtectedRoute> 
           <Header />
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/markets" element={<Markets />} />
             <Route path="/market/:id" element={<MarketDetail />} />
             <Route path="/profile" element={<Profile />} />
