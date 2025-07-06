@@ -7,6 +7,7 @@ import { Market } from '@/types/api';
 import { apiClient } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, Lock, CheckCircle, XCircle } from 'lucide-react';
+import { CreateMarketForm } from '@/components/markets/CreateMarketForm';
 
 const Admin: React.FC = () => {
   const [markets, setMarkets] = useState<Market[]>([]);
@@ -76,6 +77,8 @@ const Admin: React.FC = () => {
             </h1>
             <p className="text-muted-foreground">Manage markets and resolve outcomes</p>
           </div>
+
+          <CreateMarketForm onMarketCreated={fetchMarkets} />
 
           <Card className="bg-gradient-card border-slate-700/50">
             <CardHeader>
