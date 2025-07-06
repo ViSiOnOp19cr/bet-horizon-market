@@ -7,6 +7,7 @@ import { apiClient } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Trophy, Medal, Award, TrendingUp, Crown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatBalance } from '@/lib/utils';
 
 const Leaderboard: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -30,15 +31,6 @@ const Leaderboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(balance / 100);
   };
 
   const getRankIcon = (index: number) => {
@@ -164,17 +156,13 @@ const Leaderboard: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <TrendingUp className="h-5 w-5 mr-2 text-primary" />
-                All Rankings
+                Complete Rankings
               </CardTitle>
             </CardHeader>
             <CardContent>
               {leaderboard.length === 0 ? (
-                <div className="text-center py-12">
-                  <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground text-lg">No winners yet</p>
-                  <p className="text-muted-foreground text-sm mt-2">
-                    Be the first to win big on prediction markets!
-                  </p>
+                <div className="text-center py-8 text-muted-foreground">
+                  No winners yet
                 </div>
               ) : (
                 <div className="space-y-3">

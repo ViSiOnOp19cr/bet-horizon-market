@@ -8,6 +8,7 @@ import { Bet, Transaction } from '@/types/api';
 import { apiClient } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { User, TrendingUp, TrendingDown, DollarSign, Clock, Trophy } from 'lucide-react';
+import { formatBalance } from '@/lib/utils';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
@@ -38,15 +39,6 @@ const Profile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(balance / 100);
   };
 
   const formatDate = (dateString: string) => {

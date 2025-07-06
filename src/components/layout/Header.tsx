@@ -4,18 +4,10 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { LogOut, User, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { formatBalance } from '@/lib/utils';
 
 export const Header: React.FC = () => {
   const { user, logout, isAdmin } = useAuth();
-
-  const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(balance / 100); // Convert cents to dollars
-  };
 
   return (
     <header className="bg-card border-b border-slate-700/50 sticky top-0 z-50 backdrop-blur-sm">

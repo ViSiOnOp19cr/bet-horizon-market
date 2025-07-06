@@ -9,6 +9,7 @@ import { apiClient } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Clock, TrendingUp, TrendingDown, Users, Lock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatBalance } from '@/lib/utils';
 
 const MarketDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,14 +26,25 @@ const MarketDetail: React.FC = () => {
 
   const fetchMarketData = async () => {
     try {
+      console.log(`Fetching market data for market ID: ${id}`);
+      
       const [marketData, betsData] = await Promise.all([
         apiClient.getMarketById(Number(id)),
         apiClient.getBetsForMarket(Number(id)),
       ]);
       
+      console.log('Market data received:', {
+        marketId: marketData.id,
+        oddsYes: marketData.Oddsyes,
+        oddsNo: marketData.Oddsno,
+        isOpen: marketData.isOpen,
+        isLocked: marketData.isLocked
+      });
+      
       setMarket(marketData);
       setUserBets(betsData);
     } catch (error: any) {
+      console.error('Failed to fetch market data:', error);
       toast({
         title: "Error",
         description: "Failed to load market details",
@@ -52,15 +64,6 @@ const MarketDetail: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(balance / 100);
   };
 
   const getStatusBadge = (market: Market) => {
@@ -91,6 +94,11 @@ const MarketDetail: React.FC = () => {
         Closed
       </Badge>
     );
+  };
+
+  const handleBetPlaced = async () => {
+    console.log('Bet placed callback triggered - refreshing market data');
+    await fetchMarketData();
   };
 
   if (loading) {
@@ -265,7 +273,7 @@ const MarketDetail: React.FC = () => {
           <div className="lg:col-span-1">
             <BettingInterface 
               market={market} 
-              onBetPlaced={fetchMarketData}
+              onBetPlaced={handleBetPlaced}
             />
           </div>
         </div>

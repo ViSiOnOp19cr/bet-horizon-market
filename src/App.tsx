@@ -35,7 +35,7 @@ const AppContent = () => (
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/*" element={
-        <ProtectedRoute>
+        <ProtectedRoute> 
           <Header />
           <Routes>
             <Route path="/" element={<Index />} />

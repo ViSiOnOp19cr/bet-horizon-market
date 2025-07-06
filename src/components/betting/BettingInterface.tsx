@@ -9,6 +9,7 @@ import { apiClient } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { formatBalance } from '@/lib/utils';
 
 interface BettingInterfaceProps {
   market: Market;
@@ -22,17 +23,8 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
 
-  const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(balance / 100);
-  };
-
   const calculatePotentialPayout = () => {
-    const amount = parseFloat(betAmount) * 100; // Convert to cents
+    const amount = parseFloat(betAmount); // Amount is already in rupees
     if (!amount || !selectedOutcome) return 0;
     
     const odds = selectedOutcome === 'YES' ? market.Oddsyes : market.Oddsno;
@@ -42,7 +34,7 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
   const handleBetSubmit = async () => {
     if (!selectedOutcome || !betAmount || !user) return;
 
-    const amount = parseFloat(betAmount) * 100; // Convert to cents
+    const amount = parseFloat(betAmount); // Amount is in rupees
     
     if (amount > user.balance) {
       toast({
@@ -53,14 +45,25 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
       return;
     }
 
+    if (amount < 1) {
+      toast({
+        title: "Invalid Amount",
+        description: "Minimum bet amount is ₹1",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     
     try {
-      await apiClient.placeBet({
+      const response = await apiClient.placeBet({
         amount,
         marketId: market.id,
         outcome_chosen: selectedOutcome,
       });
+
+      console.log('Bet placed successfully:', response);
 
       toast({
         title: "Bet Placed Successfully!",
@@ -69,9 +72,17 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
 
       setBetAmount('');
       setSelectedOutcome(null);
+      
+      // Refresh user balance first
       await refreshUser();
-      onBetPlaced?.();
+      
+      // Then refresh market data with a small delay to ensure backend has updated
+      setTimeout(() => {
+        onBetPlaced?.();
+      }, 100);
+      
     } catch (error: any) {
+      console.error('Bet placement failed:', error);
       toast({
         title: "Bet Failed",
         description: error.message || "Failed to place bet",
@@ -106,50 +117,52 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
           Place Your Bet
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Available Balance: {user ? formatBalance(user.balance) : '$0'}
+          Available Balance: {user ? formatBalance(user.balance) : '₹0'}
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Outcome Selection */}
-        <div className="space-y-3">
-          <Label>Choose Outcome</Label>
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant={selectedOutcome === 'YES' ? 'default' : 'outline'}
-              className={`p-4 h-auto flex-col ${
-                selectedOutcome === 'YES' 
-                  ? 'bg-yes-bet hover:bg-yes-bet/90 text-white' 
-                  : 'border-yes-bet/50 hover:bg-yes-bet/10'
-              }`}
-              onClick={() => setSelectedOutcome('YES')}
-            >
-              <TrendingUp className="h-6 w-6 mb-2" />
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            variant={selectedOutcome === 'YES' ? 'default' : 'outline'}
+            onClick={() => setSelectedOutcome('YES')}
+            className={`h-auto p-4 flex flex-col space-y-2 ${
+              selectedOutcome === 'YES' 
+                ? 'bg-yes-bet hover:bg-yes-bet/90' 
+                : 'border-yes-bet/50 hover:border-yes-bet hover:bg-yes-bet/10'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4" />
               <span className="font-semibold">YES</span>
-              <span className="text-sm opacity-90">
-                {market.Oddsyes?.toFixed(2) || '2.00'}x
-              </span>
-            </Button>
-            <Button
-              variant={selectedOutcome === 'NO' ? 'default' : 'outline'}
-              className={`p-4 h-auto flex-col ${
-                selectedOutcome === 'NO' 
-                  ? 'bg-no-bet hover:bg-no-bet/90 text-white' 
-                  : 'border-no-bet/50 hover:bg-no-bet/10'
-              }`}
-              onClick={() => setSelectedOutcome('NO')}
-            >
-              <TrendingDown className="h-6 w-6 mb-2" />
+            </div>
+            <span className="text-lg font-bold">
+              {market.Oddsyes?.toFixed(2) || '2.00'}x
+            </span>
+          </Button>
+          
+          <Button
+            variant={selectedOutcome === 'NO' ? 'default' : 'outline'}
+            onClick={() => setSelectedOutcome('NO')}
+            className={`h-auto p-4 flex flex-col space-y-2 ${
+              selectedOutcome === 'NO' 
+                ? 'bg-no-bet hover:bg-no-bet/90' 
+                : 'border-no-bet/50 hover:border-no-bet hover:bg-no-bet/10'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <TrendingDown className="h-4 w-4" />
               <span className="font-semibold">NO</span>
-              <span className="text-sm opacity-90">
-                {market.Oddsno?.toFixed(2) || '2.00'}x
-              </span>
-            </Button>
-          </div>
+            </div>
+            <span className="text-lg font-bold">
+              {market.Oddsno?.toFixed(2) || '2.00'}x
+            </span>
+          </Button>
         </div>
 
-        {/* Bet Amount */}
+        {/* Bet Amount Input */}
         <div className="space-y-2">
-          <Label htmlFor="bet-amount">Bet Amount (USD)</Label>
+          <Label htmlFor="bet-amount">Bet Amount (₹)</Label>
           <Input
             id="bet-amount"
             type="number"
@@ -157,7 +170,7 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
             value={betAmount}
             onChange={(e) => setBetAmount(e.target.value)}
             min="1"
-            max={(user?.balance || 0) / 100}
+            max={user?.balance || 0}
             step="1"
             className="bg-slate-800/50 border-slate-600"
           />
@@ -168,7 +181,7 @@ export const BettingInterface: React.FC<BettingInterfaceProps> = ({ market, onBe
           <div className="bg-slate-800/30 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Bet Amount:</span>
-              <span>{formatBalance(parseFloat(betAmount) * 100)}</span>
+              <span>{formatBalance(parseFloat(betAmount))}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Odds:</span>
