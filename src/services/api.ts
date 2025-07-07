@@ -17,7 +17,7 @@ import {
 } from '@/types/api';
 
 class ApiClient {
-  private baseURL = 'http://localhost:3005/api/v1';
+  private baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3005/api/v1';
 
   private getAuthHeader() {
     const token = localStorage.getItem('token');
