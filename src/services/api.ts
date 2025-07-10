@@ -15,9 +15,10 @@ import {
   ResolveMarketRequest,
   ApiError,
 } from '@/types/api';
+import config from '@/config/env';
 
 class ApiClient {
-  private baseURL = 'http://localhost:3005/api/v1';
+  private baseURL = config.apiUrl;
 
   private getAuthHeader() {
     const token = localStorage.getItem('token');
