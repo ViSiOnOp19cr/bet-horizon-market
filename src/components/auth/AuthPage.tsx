@@ -13,9 +13,9 @@ export const AuthPage: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-glow opacity-20" />
       <div className="relative z-10 w-full max-w-md">
         {isLogin ? (
-          <LoginForm onToggleMode={toggleMode} />
+          <LoginForm onSwitchToSignup={toggleMode} />
         ) : (
-          <SignupForm onToggleMode={toggleMode} />
+          <SignupForm onSwitchToLogin={toggleMode} />
         )}
       </div>
     </div>

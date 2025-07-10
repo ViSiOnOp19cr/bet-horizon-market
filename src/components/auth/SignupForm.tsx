@@ -37,6 +37,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
 
     try {
       await signup(email, password);
+      // Automatically switch to login after successful signup
+      onSwitchToLogin();
     } catch (error: any) {
       setError(error.message || 'Signup failed');
     }
