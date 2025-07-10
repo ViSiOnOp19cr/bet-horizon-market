@@ -5,10 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { CreateMarketRequest } from '@/types/api';
 import { apiClient } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
-import { Plus } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface CreateMarketFormProps {
   onMarketCreated: () => void;
@@ -21,6 +24,8 @@ export const CreateMarketForm: React.FC<CreateMarketFormProps> = ({ onMarketCrea
     end_time: '',
     catagory: 'Sports',
   });
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTime, setSelectedTime] = useState<string>('23:59');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -29,7 +34,19 @@ export const CreateMarketForm: React.FC<CreateMarketFormProps> = ({ onMarketCrea
     setLoading(true);
 
     try {
-      await apiClient.createMarket(formData);
+      // Combine date and time into ISO string
+      let endDateTime = formData.end_time;
+      if (selectedDate && selectedTime) {
+        const [hours, minutes] = selectedTime.split(':');
+        const dateTime = new Date(selectedDate);
+        dateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        endDateTime = dateTime.toISOString();
+      }
+
+      await apiClient.createMarket({
+        ...formData,
+        end_time: endDateTime,
+      });
       toast({
         title: "Success",
         description: "Market created successfully",
@@ -40,6 +57,8 @@ export const CreateMarketForm: React.FC<CreateMarketFormProps> = ({ onMarketCrea
         end_time: '',
         catagory: 'Sports',
       });
+      setSelectedDate(undefined);
+      setSelectedTime('23:59');
       onMarketCreated();
     } catch (error: any) {
       toast({
@@ -57,6 +76,26 @@ export const CreateMarketForm: React.FC<CreateMarketFormProps> = ({ onMarketCrea
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    if (date && selectedTime) {
+      const [hours, minutes] = selectedTime.split(':');
+      const dateTime = new Date(date);
+      dateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      handleInputChange('end_time', dateTime.toISOString());
+    }
+  };
+
+  const handleTimeChange = (time: string) => {
+    setSelectedTime(time);
+    if (selectedDate && time) {
+      const [hours, minutes] = time.split(':');
+      const dateTime = new Date(selectedDate);
+      dateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      handleInputChange('end_time', dateTime.toISOString());
+    }
   };
 
   return (
@@ -109,19 +148,51 @@ export const CreateMarketForm: React.FC<CreateMarketFormProps> = ({ onMarketCrea
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="end_time">End Date & Time</Label>
-            <Input
-              id="end_time"
-              type="datetime-local"
-              value={formData.end_time}
-              onChange={(e) => handleInputChange('end_time', e.target.value)}
-              required
-            />
+            <Label>End Date & Time</Label>
+            <div className="flex gap-2">
+              {/* Date Picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start text-left font-normal bg-slate-800/50 border-slate-600 hover:bg-slate-700/50"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-slate-800 border-slate-700">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Time Input */}
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-slate-400" />
+                <Input
+                  type="time"
+                  value={selectedTime}
+                  onChange={(e) => handleTimeChange(e.target.value)}
+                  className="w-32 bg-slate-800/50 border-slate-600"
+                />
+              </div>
+            </div>
+            {selectedDate && selectedTime && (
+              <p className="text-sm text-slate-400">
+                Market will end: {format(selectedDate, 'PPP')} at {selectedTime}
+              </p>
+            )}
           </div>
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !selectedDate}
             className="w-full bg-gradient-primary hover:opacity-90"
           >
             {loading ? 'Creating...' : 'Create Market'}
