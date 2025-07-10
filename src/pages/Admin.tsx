@@ -22,7 +22,11 @@ const Admin: React.FC = () => {
   const fetchMarkets = async () => {
     try {
       const data = await apiClient.getAllMarkets();
-      setMarkets(data);
+      // Sort markets by creation date - newest first
+      const sortedMarkets = data.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setMarkets(sortedMarkets);
     } catch (error: any) {
       toast({
         title: "Error",

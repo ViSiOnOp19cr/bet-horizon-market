@@ -32,7 +32,11 @@ export const MarketList: React.FC<MarketListProps> = ({ title, showFilters = tru
     try {
       setLoading(true);
       const data = await apiClient.getAllMarkets();
-      setMarkets(data);
+      // Sort markets by creation date - newest first
+      const sortedMarkets = data.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setMarkets(sortedMarkets);
     } catch (error) {
       console.error('Failed to fetch markets:', error);
       toast({

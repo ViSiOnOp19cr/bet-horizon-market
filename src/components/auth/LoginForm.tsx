@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
 interface LoginFormProps {
-  onSwitchToSignup: () => void;
+  nonSwitchToSignup: () => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {

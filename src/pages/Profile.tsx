@@ -28,8 +28,18 @@ const Profile: React.FC = () => {
         apiClient.getAllTransactions(),
       ]);
       
-      setBets(betsData);
-      setTransactions(transactionsData);
+      // Sort bets by creation date - newest first
+      const sortedBets = betsData.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      // Sort transactions by creation date - newest first
+      const sortedTransactions = transactionsData.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setBets(sortedBets);
+      setTransactions(sortedTransactions);
     } catch (error: any) {
       toast({
         title: "Error",
